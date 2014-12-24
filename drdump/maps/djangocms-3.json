@@ -1,0 +1,144 @@
+[
+    ["django.contrib.sites", {
+        "comments": "django.contrib.sites: standalone",
+        "use_natural_key": true,
+        "models": "sites"
+    }],
+    
+    ["django.contrib.auth", {
+        "comments": "django.contrib.auth [user and groups, no perms]: standalone",
+        "use_natural_key": true,
+        "models": ["auth.group","auth.user"]
+    }],
+
+    ["emencia.django.countries", {
+        "comments": "emencia.django.countries: standalone",
+        "use_natural_key": true,
+        "models": "emencia.django.countries"
+    }],
+    
+    ["django-tagging", {
+        "comments": "django-tagging: standalone, using natural keys seems to broke the dump",
+        "use_natural_key": false,
+        "models": "tagging"
+    }],
+    
+    ["django-taggit", {
+        "comments": "django-taggit [alternative to django-tagging]: standalone, using natural keys seems to broke the dump",
+        "use_natural_key": false,
+        "models": "taggit"
+    }],
+    
+    ["contact_form_app", {
+        "comments": "contact_form: depends of emencia.django.countries",
+        "use_natural_key": true,
+        "models": "project.contact_form",
+        "dependancies": "emencia.django.countries"
+    }],
+    
+    ["django-google-tools", {
+        "comments": "django-google-tools: depends of django.contrib.sites",
+        "use_natural_key": true,
+        "models": "googletools",
+        "dependancies": "django.contrib.sites"
+    }],
+    
+    ["django-blog-zinnia", {
+        "comments": "zinnia: depends of django.contrib.sites, django.contrib.auth and django-tagging",
+        "use_natural_key": true,
+        "models": "zinnia",
+        "dependancies": ["django.contrib.sites","django.contrib.auth","django-tagging"]
+    }],
+    
+    ["South", {
+        "comments": "South: standalone",
+        "use_natural_key": true,
+        "models": "south"
+    }],
+    
+    ["easy-thumbnails", {
+        "comments": "easy-thumbnails: standalone",
+        "use_natural_key": true,
+        "models": "easy_thumbnails"
+    }],
+    
+    ["django-filer", {
+        "comments": "django-filer: standalone",
+        "use_natural_key": true,
+        "models": "filer"
+    }],
+    
+    ["porticus", {
+        "comments": "porticus: depends of django-tagging",
+        "use_natural_key": true,
+        "models": "porticus",
+        "dependancies": "django-tagging"
+    }],
+    
+    ["djangocms-placeholder", {
+        "comments": "djangocms placeholders: standalone",
+        "use_natural_key": true,
+        "models": "cms.placeholder"
+    }],
+    
+    ["django-cms", {
+        "comments": "djangocms base: depends of django.contrib.sites, django.contrib.auth and cms placeholders",
+        "use_natural_key": true,
+        "models": ["cms", "-e cms.usersettings"],
+        "dependancies": ["django.contrib.sites","django.contrib.auth","djangocms-placeholder","djangocms-text-ckeditor"]
+    }],
+    
+    ["djangocms-text-ckeditor", {
+        "comments": "djangocms_text_ckeditor: required for cms but depends of cms [circular dependancy]",
+        "use_natural_key": true,
+        "models": "djangocms_text_ckeditor",
+        "dependancies": "django-cms"
+    }],
+    
+    ["djangocms-snippet", {
+        "comments": "djangocms common plugins: depends of cms",
+        "use_natural_key": true,
+        "models": "djangocms_snippet",
+        "dependancies": "django-cms"
+    }],
+    ["cmsplugin-various", {
+        "comments": "djangocms common plugins: depends of cms",
+        "use_natural_key": true,
+        "models": ["djangocms_file", "djangocms_flash", "djangocms_picture"],
+        "dependancies": "django-cms"
+    }],
+        
+    ["cmsplugin-filer", {
+        "comments": "django-filer's cms plugins: depends of filer and djangocms",
+        "use_natural_key": true,
+        "models": ["cmsplugin_filer_file","cmsplugin_filer_folder","cmsplugin_filer_image"],
+        "dependancies": ["django-filer","django-cms"]
+    }],
+    
+    ["cmsplugin-zinnia", {
+        "comments": "zinnia's cms plugins: depends of zinnia and djangocms",
+        "use_natural_key": true,
+        "models": "cmsplugin_zinnia",
+        "dependancies": ["django-blog-zinnia","django-cms"]
+    }],
+    
+    ["cmsplugin-porticus", {
+        "comments": "porticus's cms plugins: depends of porticus and djangocms",
+        "use_natural_key": true,
+        "models": "cmsplugin_porticus",
+        "dependancies": ["porticus","django-cms"]
+    }],
+    ["emencia-django-slideshows", {
+        "comments": "slideshows and its cms plugin: depends of djangocms",
+        "use_natural_key": true,
+        "models": "slideshows",
+        "dependancies": "django-cms"
+    }],
+    
+    ["emencia-django-socialaggregator", {
+        "comments": "socialaggregator and its cms plugin: depends of djangocms",
+        "use_natural_key": true,
+        "models": "socialaggregator",
+        "dependancies": ["django-taggit", "django-cms"]
+    }]
+]
