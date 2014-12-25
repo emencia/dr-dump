@@ -11,7 +11,7 @@ BASE_TEMPLATE = """#!/usr/bin/env bash
 """
 
 DUMPER_TEMPLATE = """{silencer}echo "* {label}: dump.{item_no}.{name}.json"
-{silencer}{django_instance} dumpdata {natural_key}--indent=2 {models} > {dump_dir}/dump.{item_no}.{name}.json
+{silencer}{django_instance} dumpdata {natural_key} --indent=2 {models} > {dump_dir}/dump.{item_no}.{name}.json
 
 """
 

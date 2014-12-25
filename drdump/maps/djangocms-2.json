@@ -14,7 +14,7 @@
     ["emencia.django.countries", {
         "comments": "emencia.django.countries: standalone",
         "use_natural_key": true,
-        "models": "emencia.django.countries"
+        "models": "countries"
     }],
     
     ["django-tagging", {
