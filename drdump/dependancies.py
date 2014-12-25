@@ -46,7 +46,6 @@ class DependanciesManager(OrderedDict):
         # instances)
         if dumps is None:
             dumps = set([])
-            #print "* Wanted:", names
             
         # Add name to the dumps and find its dependancies
         for item in names:
