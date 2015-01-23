@@ -70,10 +70,21 @@ class ScriptBuilder(object):
         manager = self.get_deps_manager(AVAILABLE_DUMPS)
         
         fp = StringIO.StringIO()
-        
+
+        exclude_models = ['-e auth', '-e sessions', '-e contenttypes',
+                          '-e menus.cachekey', '-e filebrowser']
+
         for i, item in enumerate(manager.get_dump_order(names), start=1):
             fp = renderer(fp, i, item, manager[item])
-        
+            for model in manager[item]['models']:
+                if '-e ' not in model:
+                    model = "-e {0}".format(model)
+                if model not in exclude_models:
+                    exclude_models.append(model)
+
+        fp = renderer(fp, i+1, 'other_apps', {'models': exclude_models,
+                                              'use_natural_key': True})
+
         content = fp.getvalue()
         fp.close()
         
