@@ -13,7 +13,6 @@ class DependanciesManager(OrderedDict):
 
     def __init__(self, *args, **kwargs):
         self.silent_key_error = kwargs.pop('silent_key_error', False)
-  
         super(DependanciesManager, self).__init__(*args, **kwargs)
 
     def __setitem__(self, key, value):
@@ -23,23 +22,22 @@ class DependanciesManager(OrderedDict):
         """
         if isinstance(value['models'], basestring):
             value['models'] = value['models'].split()
-      
+
         if 'dependancies' in value:
             if isinstance(value['dependancies'], basestring):
                 value['dependancies'] = value['dependancies'].split()
-          
+
             for k in value['dependancies']:
                 if k not in self.deps_index:
                     self.deps_index[k] = set([])
                 self.deps_index[k].add(key)
-      
         OrderedDict.__setitem__(self, key, value)
 
     def get_dump_names(self, names, dumps=None):
         """
         Find and return all dump names required (by dependancies) for a given
         dump names list
-  
+
         Beware, the returned name list does not respect order, you should only
         use it when walking throught the "original" dict builded by OrderedDict
         """
@@ -48,7 +46,7 @@ class DependanciesManager(OrderedDict):
         # instances)
         if dumps is None:
             dumps = set([])
-      
+
         # Add name to the dumps and find its dependancies
         for item in names:
             if item not in self:
@@ -56,17 +54,17 @@ class DependanciesManager(OrderedDict):
                     raise KeyError("Dump name '{0}' is unknowed".format(item))
                 else:
                     continue
-          
+
             dumps.add(item)
-      
+
             # Add dependancies names to the dumps
             deps = self.__getitem__(item).get('dependancies', [])
             dumps.update(deps)
-      
+
         # Avoid maximum recursion when we allready find all dependancies
         if names == dumps:
             return dumps
-  
+
         # Seems we don't have finded other dependancies yet, recurse to do it
         return self.get_dump_names(dumps.copy(), dumps)
 
