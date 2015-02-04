@@ -1,7 +1,10 @@
 """
 Script generator
 """
-import json, StringIO, sys, getopt
+import json
+import StringIO
+import sys
+import getopt
 
 from drdump.dependancies import DependanciesManager
 
@@ -11,7 +14,7 @@ Simple program that return dump django commands.
 
 Options:
   --dump_other_apps             Dump no specify app data in last dump.
-  --exclude_apps app1,app2      Exclude theses apps from other_apps dump.       
+  --exclude_apps app1,app2      Exclude theses apps from other_apps dump.
   --help                        Show this message and exit."""
 
 
@@ -29,17 +32,20 @@ LOADER_TEMPLATE = """{silencer}echo "* Importing: dump.{item_no}.{name}.json"
 
 """
 
+
 class ScriptBuilder(object):
     """
     Bash scripts builder
     """
     deps_index = {}
-    echo_silencer = '@' # Make it empty to avoid silencer like without a Makefile
+    # Make it empty to avoid silencer like without a Makefile
+    echo_silencer = '@'
     django_instance_path_default = 'bin/django-instance'
     deps_manager = DependanciesManager
 
-    def __init__(self, dumps_path, silent_key_error=False, use_echo_silencer=False,
-                 django_instance_path=None, base_template=BASE_TEMPLATE,
+    def __init__(self, dumps_path, silent_key_error=False,
+                 use_echo_silencer=False, django_instance_path=None,
+                 base_template=BASE_TEMPLATE,
                  loadder_item_template=LOADER_TEMPLATE,
                  dumper_item_template=DUMPER_TEMPLATE, dump_other_apps=False,
                  exclude_apps=[]):
@@ -47,20 +53,20 @@ class ScriptBuilder(object):
         self.dumps_path = dumps_path
         self.silent_key_error = silent_key_error
         self.use_echo_silencer = use_echo_silencer
-        self.django_instance_path = django_instance_path or self.django_instance_path_default
+        self.django_instance_path = django_instance_path or \
+            self.django_instance_path_default
         self.base_template = base_template
         self.dumper_item_template = dumper_item_template
         self.loadder_item_template = loadder_item_template
         self.dump_other_apps = dump_other_apps
         self.exclude_apps = exclude_apps
 
-
         if not self.use_echo_silencer:
             self.echo_silencer = ''
 
     def get_deps_manager(self, *args, **kwargs):
         """
-        Return instance of the dependancies manager using  given args and kwargs
+        Return instance of the dependancies manager using given args and kwargs
 
         Add 'silent_key_error' option in kwargs if not given.
         """
@@ -85,7 +91,6 @@ class ScriptBuilder(object):
 
         fp = StringIO.StringIO()
 
-
         for i, item in enumerate(manager.get_dump_order(names), start=1):
             fp = renderer(fp, i, item, manager[item])
 
@@ -107,7 +112,6 @@ class ScriptBuilder(object):
         context.update({'items': content})
 
         return self.base_template.format(**context)
-
 
     def _get_dump_item_context(self, index, name, opts):
         """
@@ -166,10 +170,10 @@ if __name__ == "__main__":
     try:
         opts, args = getopt.getopt(sys.argv[1:], "h", ["help",
                                                        "dump_other_apps",
-                                                       "exclude_apps=",])
+                                                       "exclude_apps="])
     except getopt.GetoptError as err:
         # print help information and exit:
-        print str(err) # will print something like "option -a not recognized"
+        print str(err)  # will print something like "option -a not recognized"
         sys.exit(2)
 
     dump_other_apps = False
@@ -189,5 +193,6 @@ if __name__ == "__main__":
                        exclude_apps=exclude_apps)
 
     print "=== Dump map ==="
-    print sb.generate_dumper("maps/djangocms-3.json", ['django-cms','porticus',])
+    print sb.generate_dumper("maps/djangocms-3.json", ['django-cms',
+                                                       'porticus'])
     print
