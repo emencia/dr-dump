@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.2.4
+*****
+
+* fix API bug with exclude_apps option
+
 0.2.3
 *****
 

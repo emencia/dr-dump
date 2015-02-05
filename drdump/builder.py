@@ -95,7 +95,8 @@ class ScriptBuilder(object):
             fp = renderer(fp, i, item, manager[item])
 
         if self.dump_other_apps:
-            exclude_models = self.exclude_apps
+            exclude_models = ['-e {0}'.format(app) for app in
+                    self.exclude_apps]
             for i, item in enumerate(manager.get_dump_order(names), start=1):
                 for model in manager[item]['models']:
                     if '-e ' not in model:
@@ -185,7 +186,7 @@ if __name__ == "__main__":
         elif o in ("--dump_other_apps",):
             dump_other_apps = True
         elif o in ("--exclude_apps",):
-            exclude_apps = ['-e {0}'.format(app) for app in a.split(',')]
+            exclude_apps = a.split(',')
         else:
             assert False, "unhandled option"
 
