@@ -4,7 +4,8 @@ setup(
     name='dr-dump',
     version=__import__('drdump').__version__,
     description=__import__('drdump').__doc__,
-    long_description=open('README.rst').read(),
+    long_description=open('README.rst').read()+ "\n" +
+                     open("CHANGELOG.rst").read()
     author='David Thenon',
     author_email='dthenon@emencia.com',
     url='https://github.com/emencia/dr-dump',
