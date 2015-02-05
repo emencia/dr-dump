@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.2.5
+*****
+
+* fix typo bug on exclude_apps build
+
 0.2.4
 *****
 

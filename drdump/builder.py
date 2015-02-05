@@ -101,7 +101,7 @@ class ScriptBuilder(object):
                 for model in manager[item]['models']:
                     if '-e ' not in model:
                         model = "-e {0}".format(model)
-                    if model not in exclude_apps:
+                    if model not in exclude_models:
                         exclude_models.append(model)
             fp = renderer(fp, i+1, 'other_apps', {'models': exclude_models,
                                                   'use_natural_key': True})
