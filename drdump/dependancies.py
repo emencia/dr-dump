@@ -1,7 +1,13 @@
 """
 Dependancies manager
 """
+import sys
 from collections import OrderedDict
+
+if sys.version_info > (3, 0):
+    string_types = (str, )
+else:
+    string_types = (basestring, )
 
 
 class DependanciesManager(OrderedDict):
@@ -20,11 +26,11 @@ class DependanciesManager(OrderedDict):
         Perform string to list translation and dependancies indexing when
         setting an item
         """
-        if isinstance(value['models'], basestring):
+        if isinstance(value['models'], string_types):
             value['models'] = value['models'].split()
 
         if 'dependancies' in value:
-            if isinstance(value['dependancies'], basestring):
+            if isinstance(value['dependancies'], string_types):
                 value['dependancies'] = value['dependancies'].split()
 
             for k in value['dependancies']:
@@ -80,11 +86,16 @@ class DependanciesManager(OrderedDict):
 Sample
 """
 if __name__ == "__main__":
+    import os.path
     import json
+    import sys
 
-    AVAILABLE_DUMPS = json.load(open("maps/djangocms-3.json", "r"))
+    if len(sys.argv) > 1:
+        map_file_path = sys.argv[1]
+    else:
+        map_file_path = os.path.join(os.path.dirname(__file__), 'maps/djangocms-3.json')
 
-    dump_manager = DependanciesManager(AVAILABLE_DUMPS, silent_key_error=True)
+    dumps = json.load(open(map_file_path, 'r'))
+    dump_manager = DependanciesManager(dumps, silent_key_error=True)
 
-    print dump_manager.get_dump_order(['django-cms', 'porticus'])
-    print
+    sys.stdout.write('{}\n'.format(dump_manager.get_dump_order(['django-cms', 'porticus'])))

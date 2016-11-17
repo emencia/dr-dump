@@ -2,7 +2,7 @@
 Script generator
 """
 import json
-import StringIO
+import io
 import sys
 import getopt
 
@@ -85,25 +85,23 @@ class ScriptBuilder(object):
         """
         Build source from global and item templates
         """
-        AVAILABLE_DUMPS = json.load(open(mapfile, "r"))
+        dumps = json.load(open(mapfile, "r"))
+        manager = self.get_deps_manager(dumps)
 
-        manager = self.get_deps_manager(AVAILABLE_DUMPS)
-
-        fp = StringIO.StringIO()
+        fp = io.StringIO()
 
         for i, item in enumerate(manager.get_dump_order(names), start=1):
             fp = renderer(fp, i, item, manager[item])
 
         if self.dump_other_apps:
-            exclude_models = ['-e {0}'.format(app) for app in
-                    self.exclude_apps]
+            exclude_models = {'-e {0}'.format(app) for app in self.exclude_apps}
             for i, item in enumerate(manager.get_dump_order(names), start=1):
                 for model in manager[item]['models']:
                     if '-e ' not in model:
                         model = "-e {0}".format(model)
-                    if model not in exclude_models:
-                        exclude_models.append(model)
-            fp = renderer(fp, i+1, 'other_apps', {'models': exclude_models,
+                    exclude_models.add(model)
+
+            fp = renderer(fp, i + 1, 'other_apps', {'models': list(exclude_models),
                                                   'use_natural_key': True})
 
         content = fp.getvalue()
@@ -174,14 +172,14 @@ if __name__ == "__main__":
                                                        "exclude_apps="])
     except getopt.GetoptError as err:
         # print help information and exit:
-        print str(err)  # will print something like "option -a not recognized"
+        sys.stderr.write('{}\n'.format(err))
         sys.exit(2)
 
     dump_other_apps = False
     exclude_apps = []
     for o, a in opts:
         if o in ("-h", "--help"):
-            print HELP_MESSAGE
+            sys.stdout.write(HELP_MESSAGE)
             sys.exit()
         elif o in ("--dump_other_apps",):
             dump_other_apps = True
@@ -193,7 +191,11 @@ if __name__ == "__main__":
     sb = ScriptBuilder('dumps', dump_other_apps=dump_other_apps,
                        exclude_apps=exclude_apps)
 
-    print "=== Dump map ==="
-    print sb.generate_dumper("maps/djangocms-3.json", ['django-cms',
-                                                       'porticus'])
-    print
+    if len(sys.argv) > 1:
+        map_file_path = sys.argv[1]
+    else:
+        map_file_path = os.path.join(os.path.dirname(__file__), 'maps/djangocms-3.json')
+
+    sys.stdout.write('=== Dump map ===\n{}\n'.format(
+        sb.generate_dumper(map_file_path, ['django-cms', 'porticus'])
+    ))
