@@ -9,5 +9,6 @@ dist/*
 *.egg-info
 
 #defaults
-*.pyc
-*.pyo
+*.py?
+
+*.sw?

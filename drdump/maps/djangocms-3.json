@@ -84,7 +84,8 @@
     ["django-cms", {
         "comments": "djangocms base: depends of django.contrib.sites, django.contrib.auth and cms placeholders",
         "use_natural_key": true,
-        "models": ["cms", "-e cms.usersettings"],
+        "models": ["cms"],
+        "exclude_models": ["cms.usersettings"],
         "dependancies": ["django.contrib.sites","django.contrib.auth","djangocms-placeholder","djangocms-text-ckeditor"]
     }],
     

@@ -1,12 +1,10 @@
+from __future__ import absolute_import
+
 """
 Script generator
 """
-import json
-import io
+import os.path
 import sys
-import getopt
-
-from drdump.dependancies import DependanciesManager
 
 HELP_MESSAGE = """Usage: builder.py [OPTIONS]
 
@@ -18,184 +16,155 @@ Options:
   --help                        Show this message and exit."""
 
 
-BASE_TEMPLATE = """#!/usr/bin/env bash
-
-{items}"""
-
-DUMPER_TEMPLATE = """{silencer}echo "* {label}: dump.{item_no}.{name}.json"
-{silencer}{django_instance} dumpdata {natural_key} --indent=2 {models} > {dump_dir}/dump.{item_no}.{name}.json
+HEADER = """#!/usr/bin/env bash
 
 """
 
-LOADER_TEMPLATE = """{silencer}echo "* Importing: dump.{item_no}.{name}.json"
-{silencer}{django_instance} loaddata {dump_dir}/dump.{item_no}.{name}.json
+DUMPER_TEMPLATE = """{line_prefix}echo "* {name}: Dump {fixture_path}
+{line_prefix}{django_instance} dumpdata{natural_key} --indent=2 {models} {exclude_models} > {fixture_path}
+
+"""
+
+LOADER_TEMPLATE = """{line_prefix}echo "* Importing: {fixture_path}
+{line_prefix}{django_instance} loaddata {fixture_path}
 
 """
 
 
-class ScriptBuilder(object):
-    """
-    Bash scripts builder
-    """
-    deps_index = {}
-    # Make it empty to avoid silencer like without a Makefile
-    echo_silencer = '@'
-    django_instance_path_default = 'bin/django-instance'
-    deps_manager = DependanciesManager
+class BaseOutput(object):
+    def __init__(self, dump_dir='./dumps/'):
+        self.dump_dir = dump_dir
+        self._step_no = None
+        self._manifest = None
 
-    def __init__(self, dumps_path, silent_key_error=False,
-                 use_echo_silencer=False, django_instance_path=None,
-                 base_template=BASE_TEMPLATE,
-                 loadder_item_template=LOADER_TEMPLATE,
-                 dumper_item_template=DUMPER_TEMPLATE, dump_other_apps=False,
-                 exclude_apps=[]):
+    @property
+    def manifest_path(self):
+        return os.path.join(self.dump_dir, 'drdump.manifest')
 
-        self.dumps_path = dumps_path
-        self.silent_key_error = silent_key_error
-        self.use_echo_silencer = use_echo_silencer
-        self.django_instance_path = django_instance_path or \
-            self.django_instance_path_default
-        self.base_template = base_template
-        self.dumper_item_template = dumper_item_template
-        self.loadder_item_template = loadder_item_template
-        self.dump_other_apps = dump_other_apps
-        self.exclude_apps = exclude_apps
+    def __enter__(self):
+        assert self._manifest is None
+        assert self._step_no is None
+        self._step_no = 0
+        self._manifest = open(self.manifest_path, 'w')
+        return self
 
-        if not self.use_echo_silencer:
-            self.echo_silencer = ''
+    def __call__(self, name, options):
+        self._step_no += 1
+        fixture_name = '{:04}_{}.json'.format(self._step_no, name)
+        self._manifest.write('{}\n'.format(fixture_name))
+        return os.path.join(self.dump_dir, fixture_name)
 
-    def get_deps_manager(self, *args, **kwargs):
-        """
-        Return instance of the dependancies manager using given args and kwargs
+    def __exit__(self, exc_type, exc_value, tb):
+        self._step_no = None
+        self._manifest.close()
+        self._manifest = None
 
-        Add 'silent_key_error' option in kwargs if not given.
-        """
-        if 'silent_key_error' not in kwargs:
-            kwargs['silent_key_error'] = self.silent_key_error
-        return self.deps_manager(*args, **kwargs)
 
-    def get_global_context(self):
+class DatabaseOutput(BaseOutput):
+    def __enter__(self):
+        output = super(DatabaseOutput, self).__enter__()
+        import django
+        if hasattr(django, 'setup'):
+            # django 1.7 +
+            django.setup()
+
+        from django.core.management import call_command
+
+        if django.VERSION >= (1, 8, 0):
+            return DumpdataWrapper(output, call_command)
+
+        return DumpdataWrapperNoOutput(output, call_command)
+
+
+class BaseDumpdataWrapper(object):
+    def __init__(self, output_codec, call_command):
+        self.output_codec = output_codec
+        self._call_command = call_command
+
+    def __call__(self, name, options):
+        from django.core.management import CommandError
+
+        fixture_path = self.output_codec(name, options)
+        models = options.get('models') or []
+        command_kw = self.get_command_kwargs(options)
+        try:
+            self.run(fixture_path, models, command_kw)
+        except CommandError as ce:
+            sys.stderr.write('Cannot dump {} in {}\n'.format(models, fixture_path))
+            sys.stderr.write('{}\n'.format(ce))
+
+    def run(self, out, args, kw):
+        raise NotImplementedError()
+
+    def get_command_kwargs(self, options):
         return {
-            'silencer': self.echo_silencer,
-            'django_instance': self.django_instance_path,
-            'dump_dir': self.dumps_path,
+            'format': 'json',
+            'exclude': options.get('exclude_models') or [],
+            'use_natural_keys': options.get('use_natural_keys', True),
         }
 
-    def build_template(self, mapfile, names, renderer):
-        """
-        Build source from global and item templates
-        """
-        dumps = json.load(open(mapfile, "r"))
-        manager = self.get_deps_manager(dumps)
 
-        fp = io.StringIO()
+class DumpdataWrapper(BaseDumpdataWrapper):
+    def run(self, out, args, kw):
+        kw['output'] = out
+        return self._call_command('dumpdata', *args, **kw)
 
-        for i, item in enumerate(manager.get_dump_order(names), start=1):
-            fp = renderer(fp, i, item, manager[item])
 
-        if self.dump_other_apps:
-            exclude_models = {'-e {0}'.format(app) for app in self.exclude_apps}
-            for i, item in enumerate(manager.get_dump_order(names), start=1):
-                for model in manager[item]['models']:
-                    if '-e ' not in model:
-                        model = "-e {0}".format(model)
-                    exclude_models.add(model)
+class DumpdataWrapperNoOutput(BaseDumpdataWrapper):
+    def run(self, out, args, kw):
+        with open(out, 'w') as output:
+            _stdout, sys.stdout = sys.stdout, output
+            try:
+                self._call_command('dumpdata', *args, **kw)
+            finally:
+                sys.stdout = _stdout
 
-            fp = renderer(fp, i + 1, 'other_apps', {'models': list(exclude_models),
-                                                  'use_natural_key': True})
 
-        content = fp.getvalue()
-        fp.close()
+class ScriptOutput(BaseOutput):
+    """
+    Generate a shell script to run django management commands
+    """
 
-        context = self.get_global_context().copy()
-        context.update({'items': content})
+    default_context = {
+        'line_prefix': '',
+        'django_instance': 'bin/django-instance',
+    }
 
-        return self.base_template.format(**context)
+    def __init__(self, output=sys.stdout, script_formatter=None, dump_dir='./dumps/', **context):
+        super(ScriptOutput, self).__init__(dump_dir)
+        self.output = output
+        self.script_formatter = script_formatter or ScriptFormatter(DUMPER_TEMPLATE)
+        self.context = dict(self.default_context)
+        self.context.update(context)
 
-    def _get_dump_item_context(self, index, name, opts):
-        """
-        Return a formated dict context
-        """
-        c = {
-            'item_no': index,
-            'label': name,
+    def __enter__(self):
+        self.output.write(HEADER)
+        return super(ScriptOutput, self).__enter__()
+
+    def __call__(self, name, options):
+        fixture_name = super(ScriptOutput, self).__call__(name, options)
+        context = self.context.copy()
+        context.update({
             'name': name,
-            'models': ' '.join(opts['models']),
-            'natural_key': '',
-        }
-        if opts.get('use_natural_key', False):
-            c['natural_key'] = ' -n'
-        c.update(self.get_global_context())
-        return c
+            'fixture_path': fixture_name,
+            'natural_key': ' -n' if options.get('use_natural_key', False) else '',
+            'models': ' '.join(options.get('models') or []),
+            'exclude_models': (' '.join('-e {}'.format(m) for m in options['exclude_models'])
+                               if options.get('exclude_models') else ''),
+        })
+        line = self.script_formatter(context)
+        self.output.write(line)
 
-    def _dumpdata_template(self, stringbuffer, index, name, opts):
-        """
-        StringIO "templates" to build a command line for 'dumpdata'
-        """
-        context = self._get_dump_item_context(index, name, opts)
-
-        stringbuffer.write(self.dumper_item_template.format(**context))
-
-        return stringbuffer
-
-    def _loaddata_template(self, stringbuffer, index, name, opts):
-        """
-        StringIO "templates" to build a command line for 'loaddata'
-        """
-        context = self._get_dump_item_context(index, name, opts)
-
-        stringbuffer.write(self.loadder_item_template.format(**context))
-
-        return stringbuffer
-
-    def generate_dumper(self, mapfile, names):
-        """
-        Build dumpdata commands
-        """
-        return self.build_template(mapfile, names, self._dumpdata_template)
-
-    def generate_loader(self, mapfile, names):
-        """
-        Build loaddata commands
-        """
-        return self.build_template(mapfile, names, self._loaddata_template)
+    def __exit__(self, exc_type, exc_value, tb):
+        try:
+            self.output.flush()
+        finally:
+            super(ScriptOutput, self).__exit__(exc_value, exc_value, tb)
 
 
-"""
-Sample
-"""
-if __name__ == "__main__":
+class ScriptFormatter(object):
+    def __init__(self, line_template):
+        self.line_template = line_template
 
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "h", ["help",
-                                                       "dump_other_apps",
-                                                       "exclude_apps="])
-    except getopt.GetoptError as err:
-        # print help information and exit:
-        sys.stderr.write('{}\n'.format(err))
-        sys.exit(2)
-
-    dump_other_apps = False
-    exclude_apps = []
-    for o, a in opts:
-        if o in ("-h", "--help"):
-            sys.stdout.write(HELP_MESSAGE)
-            sys.exit()
-        elif o in ("--dump_other_apps",):
-            dump_other_apps = True
-        elif o in ("--exclude_apps",):
-            exclude_apps = a.split(',')
-        else:
-            assert False, "unhandled option"
-
-    sb = ScriptBuilder('dumps', dump_other_apps=dump_other_apps,
-                       exclude_apps=exclude_apps)
-
-    if len(sys.argv) > 1:
-        map_file_path = sys.argv[1]
-    else:
-        map_file_path = os.path.join(os.path.dirname(__file__), 'maps/djangocms-3.json')
-
-    sys.stdout.write('=== Dump map ===\n{}\n'.format(
-        sb.generate_dumper(map_file_path, ['django-cms', 'porticus'])
-    ))
+    def __call__(self, context):
+        return self.line_template.format(**context)
