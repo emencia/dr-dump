@@ -99,7 +99,7 @@ node {
             stage 'Quality', {
                 gitlabCommitStatus('Quality') {
                     try {
-                        paver("quality --strictness=2 --output=${workspace}/flake8.log");
+                        sh("${default_env}/bin/flake8 drdump --output-file=${workspace}/flake8.log");
                     } finally {
                         step([
                                 $class: 'WarningsPublisher',
