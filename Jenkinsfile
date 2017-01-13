@@ -46,10 +46,6 @@ def run_tests(python_version, django) {
 
     venv("-r ${workspace}/requirements.d/tests.txt",  venv_path, python_version);
     pip("install 'django>=${django_major}.${django_minor},<${django_major}.${django_minor_next}'", venv_path);
-    if (python_version == '2') {
-        pip("install -r ${workspace}/requirements.d/tests-python2.txt", venv_path);
-    }
-
     sh("${venv_path}/bin/pytest --junitxml=${workspace}/test_results/${test_name}.unit.xml");
 }
 
