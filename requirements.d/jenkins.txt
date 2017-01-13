@@ -1,0 +1,3 @@
+-r ../requirements.txt
+-r tests.txt
+flake8
