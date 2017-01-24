@@ -10,7 +10,7 @@ def main(manifest_path):
     basedir = os.path.dirname(manifest_path)
     with open(manifest_path, 'r') as manifest:
         for fixture_name in manifest:
-            fixture_path = os.path.join(basedir, fixture_name)
+            fixture_path = os.path.join(basedir, fixture_name.strip())
             call_command('loaddata', fixture_path)
 
 
