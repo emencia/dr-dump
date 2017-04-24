@@ -33,7 +33,7 @@ LOADER_TEMPLATE = """{line_prefix}echo "* Importing: {fixture_path}
 
 class BaseOutput(object):
     def __init__(self, dump_dir='./dumps/'):
-        if os.path.exists(dump_dir):
+        if not os.path.exists(dump_dir):
             os.makedirs(dump_dir)
 
         self.dump_dir = dump_dir
