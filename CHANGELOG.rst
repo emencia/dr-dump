@@ -1,10 +1,16 @@
 Changelog
 =========
 
-0.2.5
+1.1.0
 *****
 
-* fix typo bug on exclude_apps build
+* Drop support for Django<1.9;
+* Fixed compatibility with Django>=1.10;
+
+1.0.0
+*****
+
+* Rewriting;
 
 0.2.4
 *****

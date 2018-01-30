@@ -3,7 +3,6 @@
 from __future__ import absolute_import
 
 import logging
-import optparse
 
 from django.core.management.base import BaseCommand
 try:
@@ -69,58 +68,6 @@ class Command(BaseCommand):
             default='DatabaseOutput',
             dest='codec',
             help='Output codec',
-        )
-
-    if BaseCommand.option_list:
-        option_list = BaseCommand.option_list + (
-            optparse.make_option(
-                '-m',
-                '--map',
-                metavar='FILE',
-                default=getattr(settings, 'DRDUMP_MAP_FILE', 'djangocms-3'),
-                help='The path to a map file',
-            ),
-            optparse.make_option(
-                '-x',
-                '--exclude-app',
-                metavar='APP',
-                dest='exclude_apps',
-                default=getattr(settings, 'DRDUMP_EXCLUDE_APPS', []),
-                action='append',
-                help='List of apps to exclude',
-            ),
-            optparse.make_option(
-                '-e',
-                '--extra-app',
-                metavar='APP',
-                dest='extra_apps',
-                default=getattr(settings, 'DRDUMP_EXTRA_APPS', []),
-                action='append',
-                help='Extra apps to dump',
-            ),
-            optparse.make_option(
-                '-a',
-                '--dump-other-apps',
-                action='store_true',
-                default=getattr(settings, 'DRDUMP_OTHER_APPS', False),
-                help='Dump other applications',
-            ),
-            optparse.make_option(
-                '-o',
-                '--option',
-                default=getattr(settings, 'DRDUMP_OPTIONS', {}),
-                metavar='KEY[=value]',
-                action='append',
-                dest='options',
-                help='Output codec options',
-            ),
-            optparse.make_option(
-                '-c',
-                '--codec',
-                default='DatabaseOutput',
-                dest='codec',
-                help='Output codec',
-            ),
         )
 
     def handle(self, **options):
