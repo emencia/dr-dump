@@ -4,7 +4,7 @@ DEFAULT_BRANCH = 'master'
 DEPLOYED_BRANCH = DEFAULT_BRANCH
 
 is_merge_request = env.gitlabTargetBranch != env.gitlabSourceBranch;
-index_url = 'https://pi.emencia.net/+/';
+index_url = 'https://pi.emencia.net/jenkins/release';
 index = 'emencia';
 
 def get_code() {
