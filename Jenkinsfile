@@ -117,9 +117,12 @@ node {
                                 test_python2_django18: {run_tests('2', [1, 8])},
                                 test_python2_django19: {run_tests('2', [1, 9])},
                                 test_python2_django110: {run_tests('2', [1, 10])},
+                                test_python2_django111: {run_tests('2', [1, 11])},
                                 test_python3_django18: {run_tests('3', [1, 8])},
                                 test_python3_django19: {run_tests('3', [1, 9])},
                                 test_python3_django110: {run_tests('3', [1, 10])},
+                                test_python3_django111: {run_tests('3', [1, 11])},
+                                test_python3_django20: {run_tests('3', [2, 0])},
                                 );
                     } finally {
                         step([
