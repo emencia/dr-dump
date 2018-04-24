@@ -104,6 +104,7 @@ class BaseDumpdataWrapper(object):
             'format': 'json',
             'exclude': options.get('exclude_models') or [],
             'use_natural_keys': options.get('use_natural_keys', True),
+            'indent': 2,
         }
 
 
