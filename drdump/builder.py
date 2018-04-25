@@ -44,9 +44,15 @@ class BaseOutput(object):
     def manifest_path(self):
         return os.path.join(self.dump_dir, 'drdump.manifest')
 
+    def empty_dump_dir(self):
+        file_list = os.listdir(self.dump_dir)
+        for file_name in file_list:
+            os.remove(os.path.join(self.dump_dir, file_name))
+
     def __enter__(self):
         assert self._manifest is None
         assert self._step_no is None
+        self.empty_dump_dir()
         self._step_no = 0
         self._manifest = open(self.manifest_path, 'w')
         return self
