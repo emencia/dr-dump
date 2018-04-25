@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.2
+*****
+
+* Delete all files into dumps folder before run dump command
+
 1.1.1
 *****
 
