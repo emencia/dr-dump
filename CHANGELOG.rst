@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.1.1
+*****
+
+* Use django post 1.9 syntax for natural keys
+* Force use indent json for dump file
+
 1.1.0
 *****
 
