@@ -2,7 +2,9 @@
 
 from __future__ import absolute_import
 
+
 import pkg_resources
+
 
 class ApplicationsList(object):
     def __init__(self, apps):
