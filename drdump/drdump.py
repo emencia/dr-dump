@@ -2,8 +2,7 @@
 
 from __future__ import absolute_import
 
-import pip
-
+import pkg_resources
 
 class ApplicationsList(object):
     def __init__(self, apps):
@@ -14,7 +13,7 @@ class ApplicationsList(object):
 
     @classmethod
     def from_packages(cls, extra_apps=()):
-        packages = pip.get_installed_distributions()
+        packages = [d for d in pkg_resources.working_set]
         apps = {p.key for p in packages}
         apps.update(extra_apps)
         return cls(apps)
