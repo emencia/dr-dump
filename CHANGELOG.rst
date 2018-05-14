@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.3
+*****
+
+* Replaced use of pip internal function with pkg_resources
+
 1.1.2
 *****
 
