@@ -88,12 +88,12 @@ node {
                 'Tests',
         ]) {
             stage 'Quality & tests setup', {
-                gitlabCommitStatus('Quality & tests setup') {
+                gitlabCommitStatus(name: 'Quality & tests setup') {
                     venv('-r requirements.d/jenkins.txt');
                 }
             }
             stage 'Quality', {
-                gitlabCommitStatus('Quality') {
+                gitlabCommitStatus(name: 'Quality') {
                     try {
                         sh("${default_env}/bin/flake8 drdump --output-file=${workspace}/flake8.log");
                     } finally {
@@ -111,7 +111,7 @@ node {
                 }
             }
             stage 'Tests', {
-                gitlabCommitStatus('Tests') {
+                gitlabCommitStatus(name: 'Tests') {
                     try {
                         parallel(
                                 test_python2_django18: {run_tests('2', [1, 8])},
@@ -140,7 +140,7 @@ node {
         ]) {
             if (env.gitlabSourceBranch == DEPLOYED_BRANCH && env.gitlabActionType == 'PUSH' || env.gitlabSourceBranch == null) {
                 stage 'Publish', {
-                    gitlabCommitStatus('Publish') {
+                    gitlabCommitStatus(name: 'Publish') {
                         setuppy("register -r ${index}");
                         setuppy("sdist bdist_wheel upload -r ${index}");
                     }
