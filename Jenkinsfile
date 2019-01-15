@@ -23,7 +23,7 @@ def get_code() {
                 [
                     $class: 'PreBuildMerge',
                     options: [
-                        fastForwardMode: 'NO_FF', mergeRemote: 'origin', mergeStrategy: 'MergeCommand.Strategy',
+                        fastForwardMode: 'NO_FF', mergeRemote: 'origin', mergeStrategy: 'DEFAULT',
                         mergeTarget: "${env.gitlabTargetBranch}"
                     ]
                 ]
