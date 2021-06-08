@@ -1,10 +1,14 @@
+# -*- coding: utf-8 -*-
+
 from setuptools import setup, find_packages
+
 
 setup(
     name='dr-dump',
     version=__import__('drdump').__version__,
     description=__import__('drdump').__doc__,
-    long_description=open('README.rst').read() + "\n" + open("CHANGELOG.rst").read(),
+    long_description=open('README.rst').read(),
+    long_description_content_type="text/x-rst",
     author='David Thenon',
     author_email='dthenon@emencia.com',
     url='https://github.com/emencia/dr-dump',
@@ -20,7 +24,6 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Framework :: Django',
         "Framework :: Django :: 1.9",
         "Framework :: Django :: 1.10",
@@ -28,7 +31,9 @@ setup(
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    install_requires=[],
+    install_requires=[
+        "django>=1.9",
+    ],
     include_package_data=True,
     zip_safe=False
 )

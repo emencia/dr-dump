@@ -1,5 +1,2 @@
-"""
-A Django data dump script generator
-"""
-
-__version__ = '1.1.3'
+"""A Django data dump script generator"""
+__version__ = '1.1.4'

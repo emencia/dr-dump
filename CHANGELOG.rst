@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.4 - 2021/06/08
+******************
+
+Minor fixes on setup and README to be able to release on Pypi.
+
 1.1.3
 *****
 
