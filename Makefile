@@ -96,7 +96,7 @@ superuser:
 
 install: venv create-var-dirs
 	$(PIP) install -e .[dev]
-	${MAKE} migrate
+# 	${MAKE} migrate
 .PHONY: install
 
 run:
