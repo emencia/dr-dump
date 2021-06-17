@@ -1,14 +1,43 @@
-#buildout's specific
-.installed.cfg
-eggs/*
-bin/*
-build/*
-dist/*
+# virtualenv
+.venv
 
-#egg's specific
+# Packaging
+build
+dist
 *.egg-info
 
-#defaults
-*.py?
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
 
-*.sw?
+# Site media and builded statics
+/var/
+/sandbox/static
+
+# Settings
+localsettings.py
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.cache
+.pytest_cache
+nosetests.xml
+coverage.xml
+.tox
+
+# VS Code
+.vscode
+
+# Mac Os
+.DS_Store
+
+# Temp files
+*~
+.~lock*
+
+# Swap files
+*.sw[po]
+
+# Logging files
+*.log
