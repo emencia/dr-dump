@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.0.0 - Unreleased
+******************
+
+Rebooting project for better quality, drop Python2 and Django<2.1 support.
+
 1.1.4 - 2021/06/08
 ******************
 

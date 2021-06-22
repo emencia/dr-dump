@@ -72,16 +72,18 @@ def main(args=sys.argv[1:]):
     ns = parser.parse_args(args)
 
     dm = DependanciesManager.from_json_filename(ns.map, silent_key_error=not bool(ns.apps))
+
     if ns.apps:
         application_list = ApplicationsList(ns.apps + ns.extra_apps)
     else:
         application_list = ApplicationsList.from_packages(extra_apps=ns.extra_apps)
 
-    drdump = Drdump(dm,
-                    application_list,
-                    exclude_apps=ns.exclude_apps,
-                    dump_other_apps=ns.dump_other_apps,
-                    )
+    drdump = Drdump(
+        dm,
+        application_list,
+        exclude_apps=ns.exclude_apps,
+        dump_other_apps=ns.dump_other_apps,
+    )
     options = dict(x.split('=', 1) if '=' in x else (x, True)
                    for x in ns.options)
     if '.' in ns.codec:
