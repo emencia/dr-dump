@@ -56,10 +56,10 @@ class Command(BaseCommand):
         parser.add_argument(
             '-o',
             '--option',
-            default=getattr(settings, 'DRDUMP_OPTIONS', {}),
+            default=getattr(settings, 'DRDUMP_OPTIONS', []),
             metavar='KEY[=value]',
             action='append',
-            dest='options',
+            dest='codec_options',
             help='Output codec options',
         )
         parser.add_argument(
