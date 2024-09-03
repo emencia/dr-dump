@@ -1,6 +1,8 @@
 .. _Django: https://www.djangoproject.com/
 .. _Dr Dump: https://github.com/emencia/dr-dump
 
+**This application is unmaintained and archived in profit of `Diskette <https://github.com/emencia/diskette>`_.**
+
 This is a Django data dump script generator. It either generates a script to
 call dumpdata or does dumpddata itself.
 
